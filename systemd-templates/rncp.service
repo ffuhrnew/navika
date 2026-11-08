@@ -1,6 +1,7 @@
 [Unit]
 Description=Reticulum Network Copy Listener
 After=network.target rnsd.service
+Requires=rnsd.service
 
 [Service]
 Type=simple

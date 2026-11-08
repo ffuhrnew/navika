@@ -1,6 +1,7 @@
 [Unit]
 Description=RNX Listener
-After=network.target
+After=network.target rnsd.service
+Requires=rnsd.service
 
 [Service]
 Type=simple

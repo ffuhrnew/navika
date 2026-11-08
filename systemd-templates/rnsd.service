@@ -6,6 +6,7 @@ After=network.target
 Type=simple
 User=pi
 ExecStart=/home/pi/.local/bin/rnsd --service -v
+ExecStartPost=/bin/bash -c 'for i in $$(seq 1 60); do ss -xlp | grep "@rns/default/rpc" | grep -q rnsd && exit 0; sleep 1; done; exit 1'
 Restart=always
 RestartSec=5
 
