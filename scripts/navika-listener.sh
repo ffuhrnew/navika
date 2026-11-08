@@ -17,6 +17,6 @@ if [ "${#ARGS[@]}" -eq 0 ]; then
 fi
 case "$SVC" in
     rnsh) exec "$BIN/rnsh" -l "${ARGS[@]}" -b 900 -- /bin/bash ;;
-    rncp) exec "$BIN/rncp" -l "${ARGS[@]}" -b 900 ;;
+    rncp) INBOX="${RNCP_SAVE_PATH:-$HOME/rncp-inbox}"; mkdir -p "$INBOX"; exec "$BIN/rncp" -l "${ARGS[@]}" -s "$INBOX" -b 900 ;;
     rnx)  exec "$BIN/rnx" -l "${ARGS[@]}" ;;
 esac
