@@ -123,9 +123,8 @@ echo "--- 7. Richte Cronjobs ein (Idempotent) ---"
 sudo crontab /home/pi/deploy/navika/finalize/crontab_root.template
 crontab /home/pi/deploy/navika/finalize/crontab_pi.template
 echo "--- 8. Hostname finalisieren ---"
+sudo sed -i "/127.0.1.1/d;\$a 127.0.1.1 ${NODE_NAME}" /etc/hosts
 sudo hostnamectl set-hostname "${NODE_NAME}"
-sudo sed -i '/127.0.1.1/d' /etc/hosts
-echo -e "127.0.1.1\t${NODE_NAME}" | sudo tee -a /etc/hosts > /dev/null
 
 echo ""
 echo "======================================================"
