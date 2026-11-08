@@ -33,6 +33,23 @@ Alarm-Benachrichtigungen und Offline-WLAN-AP-Setup.
 | Standalone AP (`wlan-creator.sh`) | Kein lokales WLAN am Standort | Node spannt eigenes WPA2-AP-Netz (`<HOSTNAME>-AP`) mit DHCP auf |
 | Client-WLAN (`wlan-selector.sh`) | Stationäre WLAN-Infrastruktur vor Ort | Auswahl eines hinterlegten Client-WLANs mit Priorität 100 |
 
+## Optionale Funktionen
+
+**Zeitsynchronisation per Samaya** (Standard: aus)
+Für Nodes ohne batteriegepufferte Uhr: [Samaya](https://github.com/ffuhrnew/samaya) stellt die Systemuhr über Reticulum nach einem Zeitserver, nur vorwärts. In `/etc/navika.env` setzen:
+
+- `SAMAYA_ENABLE="yes"`
+- `SAMAYA_TIME_SERVER_KEY="<öffentlicher Schlüssel des Zeitservers, 128 Hex-Zeichen>"`
+- optional `SAMAYA_REF` (Standard: Tag `v0.1.0`)
+
+Das Setup installiert `samaya` per pipx aus dem öffentlichen Repo mit festem Tag und richtet `samaya-sync.timer` ein (30 Sekunden nach dem Start, danach alle 30 Minuten). Der Schlüssel steht nur in `/etc/navika.env`, nie in einer Unit-Datei oder im Repo.
+
+**NomadNet-Anzeigename**
+`NOMADNET_DISPLAY_NAME` in `/etc/navika.env`. Leer bedeutet `<Hostname>_OP`. Das Setup setzt den Namen in Schritt 9. Auf einem laufenden Node geht es auch einzeln mit `navika-set-nomadnet-name.sh` (stoppt NomadNet dabei kurz).
+
+**rncp-Eingang**
+Per `rncp` empfangene Dateien landen in `~/rncp-inbox`. Der Pfad ist mit `RNCP_SAVE_PATH` in `/etc/navika.env` änderbar.
+
 ## Sicherheit
 
 - **Fernzugriff:** `rnsh`, `rncp` und `rnx` starten nur, wenn ihre eigene Allow-Liste (`ALLOWED_IDENTITIES_RNSH`, `ALLOWED_IDENTITIES_RNCP`, `ALLOWED_IDENTITIES_RNX`) in `/etc/navika.env` gesetzt ist, und erlauben nur diese Identitäten. Ohne Eintrag bleibt der jeweilige Dienst aus. Eine `rnsh`-Freigabe ist ein Shell-Zugang als Benutzer `pi`, der in der Standardkonfiguration von Raspberry Pi OS per `sudo` root werden kann.

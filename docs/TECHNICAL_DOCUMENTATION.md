@@ -56,14 +56,18 @@ hier veraltet). Ablauf:
    geloescht, nie aufgrund einer Vermutung)
 6. .reticulum/config schreiben (Standard-LoRa-Parameter, siehe unten; eine bestehende
    Config wird vorher nach ~/identity_backups/ gesichert)
-7. Alle 5 systemd-Services aus systemd-templates/ kopieren
+7. Alle 5 systemd-Services aus systemd-templates/ kopieren; rnsh, rncp und rnx werden nur
+   aktiviert, wenn ihre eigene Allow-Liste (ALLOWED_IDENTITIES_<DIENST>) in /etc/navika.env gesetzt ist
 8. udev-Regel kopieren, dann udevadm control --reload-rules und udevadm trigger
 9. Alle Wartungs-Scripts nach /usr/local/bin/ kopieren und chmod +x
 10. PATH-Erweiterung in ~/.bashrc: deploy/navika/scripts wird
     vorn an PATH gehaengt (idempotent)
 11. Cronjobs aus den Templates einrichten
-12. Hostname final setzen
-13. Interaktive Abfrage: wlan-creator.sh jetzt ausfuehren? j/n
+12. Hostname final setzen (zuerst /etc/hosts, dann hostnamectl, sonst warnt sudo)
+13. NomadNet-Anzeigename setzen (navika-set-nomadnet-name.sh)
+14. Optional (SAMAYA_ENABLE=yes): samaya per pipx aus dem Tag installieren, samaya-sync.service
+    und .timer einrichten
+15. Interaktive Abfrage: wlan-creator.sh jetzt ausfuehren? j/n
 
 ### Fleet-Standard .reticulum/config
 
@@ -110,6 +114,30 @@ Liest die Allow-Liste des Dienstes (ALLOWED_IDENTITIES_RNSH, _RNCP bzw. _RNX; Id
 Hex-Zeichen) aus /etc/navika.env und startet den Listener mit je einem -a pro Hash. Jedes Programm hat
 eine eigene Identity, die Listen sind bewusst getrennt, eine gemeinsame Liste gibt es nicht. Ist die
 Liste leer, startet der Dienst nicht (Absicht). Ungueltige Hashes brechen den Start ab.
+rncp speichert empfangene Dateien in RNCP_SAVE_PATH (Standard ~/rncp-inbox, wird angelegt).
+
+### scripts/navika-set-nomadnet-name.sh
+Setzt den NomadNet-Anzeigenamen (display_name in ~/.nomadnetwork/storage/peersettings, msgpack).
+Name: NOMADNET_DISPLAY_NAME aus /etc/navika.env, leer = <Hostname>_OP. NomadNet haelt die
+Einstellungen im Speicher und schreibt die Datei bei jedem Speichern neu; deshalb wird der Dienst
+vor der Aenderung gestoppt und danach gestartet. Fehlt peersettings noch (frischer Node), startet
+das Skript NomadNet einmal, wartet bis zu 60 Sekunden auf die Datei und aendert sie dann.
+Vorher wird peersettings.bak angelegt.
+
+### scripts/navika-samaya-sync.sh
+Wrapper fuer samaya-sync.service (laeuft als root, nur root darf die Systemuhr stellen). Liest
+SAMAYA_ENABLE, SAMAYA_TIME_SERVER_KEY (128 Hex-Zeichen) und RNS_USER aus /etc/navika.env und ruft
+samaya sync --rns-config /home/<RNS_USER>/.reticulum <Schluessel> auf. Ist SAMAYA_ENABLE nicht yes,
+endet das Skript mit 0; ein fehlender oder ungueltiger Schluessel ergibt Exit 1. Der Schluessel
+steht bewusst nicht in der Unit-Datei und nie im Repo. Exit-Code 2 von samaya (Uhr geht vor, nicht
+zurueckgestellt) ist kein Fehler.
+
+### systemd-templates/samaya/
+samaya-sync.service (oneshot, After/Wants rnsd.service) und samaya-sync.timer (OnBootSec=30s,
+OnUnitInactiveSec=30min, RandomizedDelaySec=20s). Die Units liegen in einem Unterordner, damit der
+Kopierbefehl fuer systemd-templates/*.service sie nicht auf jeden Node legt; das Setup installiert
+sie nur bei SAMAYA_ENABLE=yes. samaya wird per pipx aus dem oeffentlichen Repo installiert,
+festgelegt auf SAMAYA_REF (Standard: Tag v0.1.0).
 
 ### scripts/send-status.sh
 Laeuft alle 3 Stunden via Cron als User pi. Sendet Hostname, RAM-Status
@@ -138,6 +166,12 @@ rnx unterstuetzt kein periodisches Announce - bei rnx bedeutet -b
 no-announce, ein reiner Ein-Aus-Schalter, kein Intervall in Sekunden
 wie bei rnsh und rncp. Fuer periodisches Re-Announce braeuchte rnx einen
 externen Workaround, zum Beispiel einen systemd-Timer - nicht implementiert.
+
+### Startreihenfolge der Services
+rnsd.service wartet per ExecStartPost bis zu 60 Sekunden, bis rnsd selbst den Socket @rns/default/rpc
+haelt; erst dann gilt die Unit als gestartet. rnsh, rncp und rnx haben After= und Requires=rnsd.service.
+Grund: Ein Client, der vor rnsd bereitsteht, wird selbst zur Shared Instance und haelt den RNode mit
+der alten Konfiguration (Fehlerbild: rnsd meldet "connected to another shared local instance").
 
 ### udev-templates/99-rnode.rules
 idVendor 303a, idProduct 1001, SYMLINK ttyRNODE. Fleet-weit identisch:
@@ -178,9 +212,3 @@ verifizieren. Backup statt Loeschen ist der Standard in allen Scripts.
 
 - rnx: kein periodisches Re-Announce, externer Timer-Workaround nicht umgesetzt
 - AP-Passwort-Handling in wlan-creator.sh: interaktive Eingabe, kein Default
-
-### Startreihenfolge der Services
-rnsd.service wartet per ExecStartPost bis zu 60 Sekunden, bis rnsd selbst den Socket @rns/default/rpc
-haelt; erst dann gilt die Unit als gestartet. rnsh, rncp und rnx haben After= und Requires=rnsd.service.
-Grund: Ein Client, der vor rnsd bereitsteht, wird selbst zur Shared Instance und haelt den RNode mit
-der alten Konfiguration (Fehlerbild: rnsd meldet "connected to another shared local instance").
