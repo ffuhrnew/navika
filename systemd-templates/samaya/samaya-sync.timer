@@ -1,0 +1,11 @@
+[Unit]
+Description=Samaya - regelmaessiger Zeitabgleich
+
+[Timer]
+# Kurz nach dem Start (fuer Rechner ohne batteriegepufferte Uhr) und danach regelmaessig.
+OnBootSec=30s
+OnUnitInactiveSec=30min
+RandomizedDelaySec=20s
+
+[Install]
+WantedBy=timers.target

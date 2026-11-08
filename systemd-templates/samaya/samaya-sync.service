@@ -1,0 +1,13 @@
+[Unit]
+Description=Samaya - Systemuhr nach Reticulum-Zeitserver stellen
+# rnsd als eigener Dienst: Samaya haengt sich an dessen Shared Instance.
+After=rnsd.service
+Wants=rnsd.service
+
+[Service]
+Type=oneshot
+# Laeuft als root (nur root darf die Systemuhr stellen). Der Schluessel steht in /etc/navika.env.
+ExecStart=/usr/local/bin/navika-samaya-sync.sh
+# Exit-Code 2 = die Uhr geht vor und wurde nicht zurueckgestellt: kein Fehler.
+SuccessExitStatus=2
+Environment=PYTHONUNBUFFERED=1
