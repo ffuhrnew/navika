@@ -1,0 +1,15 @@
+[Unit]
+Description=Nomad Network Node Daemon
+After=network.target rnsd.service
+Wants=rnsd.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi
+ExecStart=/home/pi/.local/bin/nomadnet --daemon
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

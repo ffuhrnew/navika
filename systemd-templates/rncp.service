@@ -1,0 +1,14 @@
+[Unit]
+Description=Reticulum Network Copy Listener
+After=network.target rnsd.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi
+ExecStart=/usr/local/bin/navika-listener.sh rncp
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

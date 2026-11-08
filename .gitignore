@@ -1,0 +1,9 @@
+identity_backups/
+*.old_*
+__pycache__/
+*.pyc
+arc/
+
+# Lokale Konfigurationen & Secrets
+*.env
+!*.env.example

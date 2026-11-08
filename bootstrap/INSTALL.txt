@@ -1,0 +1,20 @@
+1. Frischen Node booten (bucht sich in das vorkonfigurierte Setup-WLAN ein)
+2. Per SSH auf den neuen Node schalten
+3. Auf dem Node das Verzeichnis anlegen und das Pull-Skript vom Deploy-Host holen:
+   mkdir -p ~/deploy/navika/bootstrap
+   ssh <USER>@<DEPLOY_HOST_IP> "cat ~/build/navika/bootstrap/pull_from_host.sh" > ~/deploy/navika/bootstrap/pull_from_host.sh
+4. In den Ordner wechseln, DEPLOY_HOST_IP anpassen (oder /etc/navika.env anlegen) und ausführen:
+   cd ~/deploy/navika/bootstrap
+   chmod +x pull_from_host.sh && ./pull_from_host.sh
+5. Bootstrap-Skript ausführen:
+   ./bootstrap_new_node.sh
+6. System manuell neustarten:
+   sudo reboot
+7. Erneut per SSH auf den Node schalten
+8. In den Finalize-Ordner wechseln:
+   cd ~/deploy/navika/finalize
+9. Finalize-Skript ausführen:
+   ./setup_new_rns_node.sh
+10. Interaktive Abfrage für wlan-creator.sh mit "j" bestätigen
+11. System final neustarten:
+    sudo reboot

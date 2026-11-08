@@ -1,0 +1,14 @@
+[Unit]
+Description=RNSH Listener
+After=network.target rnsd.service
+Requires=rnsd.service
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/usr/local/bin/navika-listener.sh rnsh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

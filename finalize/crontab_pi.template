@@ -1,0 +1,2 @@
+0 */3 * * * /usr/local/bin/send-status.sh >/dev/null 2>&1
+0 * * * * /usr/local/bin/rns-announce-all.py >> "$HOME/rns-announce.log" 2>&1

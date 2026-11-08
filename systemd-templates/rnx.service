@@ -1,0 +1,13 @@
+[Unit]
+Description=RNX Listener
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/usr/local/bin/navika-listener.sh rnx
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
