@@ -97,12 +97,14 @@ echo "--- 5. systemd neu laden & aktivieren ---"
 sudo systemctl daemon-reload
 [ -d ~/.rnsh ] && mv ~/.rnsh ~/identity_backups/rnsh_dir_${TS} 2>/dev/null || true
 sudo systemctl enable rnsd nomadnet &>/dev/null || true
-# Listener nur mit Allowlist (ALLOWED_IDENTITIES in /etc/navika.env)
-if grep -Eqs '^ALLOWED_IDENTITIES="[^"]+"' /etc/navika.env; then
-    sudo systemctl enable rnsh rncp rnx &>/dev/null || true
-else
-    echo "HINWEIS: ALLOWED_IDENTITIES nicht gesetzt - rnsh/rncp/rnx bleiben deaktiviert."
-fi
+# Listener nur mit Allowlist je Dienst (ALLOWED_IDENTITIES_<DIENST> in /etc/navika.env)
+for svc in rnsh rncp rnx; do
+    if grep -Eqs "^ALLOWED_IDENTITIES_${svc^^}=\"[^\"]+\"" /etc/navika.env; then
+        sudo systemctl enable "$svc" &>/dev/null || true
+    else
+        echo "HINWEIS: ALLOWED_IDENTITIES_${svc^^} nicht gesetzt - $svc bleibt deaktiviert."
+    fi
+done
 
 echo "--- 6. Kopiere und berechtige alle Wartungs-Skripte ---"
 # Kopiert alle Skripte stumm nach /usr/local/bin/
