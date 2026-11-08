@@ -8,7 +8,7 @@ Alarm-Benachrichtigungen und Offline-WLAN-AP-Setup.
 
 ## Verzeichnisstruktur
 
-- `bootstrap/` – Erstbetankung und Basis-Installation (pipx, rns, nomadnet, lxmf, rnsh)
+- `bootstrap/` – Erstbetankung und Basis-Installation (pipx, rns, nomadnet, lxmf)
 - `config-templates/` – Konfigurationsvorlage (`navika.env.example` -> `/etc/navika.env`)
 - `finalize/` – Systemkonfiguration (machine-id, `.reticulum/config`, systemd-Units, udev, Cronjobs)
 - `scripts/` – Wartungs- und Hilfsskripte (`rnode-watchdog.sh`, `rns-notify.py`, `send-status.sh`, `rns-announce-all.py`, `wlan-creator.sh`, `wlan-selector.sh`)

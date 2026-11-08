@@ -42,9 +42,6 @@ pipx install meshcore-cli || echo "WARNUNG: meshcore-cli fehlgeschlagen, ggf. sp
 echo "--- pipx venv: meshtastic ---"
 pipx install meshtastic
 
-echo "--- pipx venv: rnsh ---"
-pipx install rnsh || echo "WARNUNG: rnsh fehlgeschlagen, ggf. spaeter nachholen."
-
 echo "--- Gruppen ---"
 sudo usermod -aG dialout pi
 sudo usermod -aG bluetooth pi
