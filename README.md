@@ -21,7 +21,7 @@ Alarm-Benachrichtigungen und Offline-WLAN-AP-Setup.
 1. SD-Karte flashen: Raspberry Pi OS Lite 64-bit, offizieller Imager,
    Hostname/SSH-Key/User `pi` vorkonfigurieren.
 2. Deployment-Skripte per `bootstrap/pull_from_host.sh` (oder `git clone`) auf den Node holen.
-3. `config-templates/navika.env.example` nach `/etc/navika.env` kopieren und eigene Ziel-Hashes, `ALLOWED_IDENTITIES` (Admin-Identities für rnsh/rncp/rnx) sowie WLAN-SSIDs eintragen.
+3. `config-templates/navika.env.example` nach `/etc/navika.env` kopieren und eigene Ziel-Hashes, die Allow-Listen `ALLOWED_IDENTITIES_RNSH`, `ALLOWED_IDENTITIES_RNCP` und `ALLOWED_IDENTITIES_RNX` sowie WLAN-SSIDs eintragen. Jedes Programm hat auf dem Client eine eigene Identity (`rnsh -p`, `rncp -p`, `rnx -p`), deshalb gibt es je Dienst eine eigene Liste.
 4. `bootstrap/bootstrap_new_node.sh` ausführen und neu starten (`sudo reboot`).
 5. `finalize/setup_new_rns_node.sh` ausführen, Hostname vergeben, optional `wlan-creator.sh` starten und abschließend neu starten (`sudo reboot`).
 6. Vor Produktivbetrieb: neue Identity-Hashes verifizieren.
@@ -35,7 +35,7 @@ Alarm-Benachrichtigungen und Offline-WLAN-AP-Setup.
 
 ## Sicherheit
 
-- **Fernzugriff:** `rnsh`, `rncp` und `rnx` starten nur, wenn `ALLOWED_IDENTITIES` in `/etc/navika.env` gesetzt ist, und erlauben nur diese Identitäten. Ohne Eintrag bleiben sie aus. Eine `rnsh`-Freigabe ist ein Shell-Zugang als Benutzer `pi`, der in der Standardkonfiguration von Raspberry Pi OS per `sudo` root werden kann.
+- **Fernzugriff:** `rnsh`, `rncp` und `rnx` starten nur, wenn ihre eigene Allow-Liste (`ALLOWED_IDENTITIES_RNSH`, `ALLOWED_IDENTITIES_RNCP`, `ALLOWED_IDENTITIES_RNX`) in `/etc/navika.env` gesetzt ist, und erlauben nur diese Identitäten. Ohne Eintrag bleibt der jeweilige Dienst aus. Eine `rnsh`-Freigabe ist ein Shell-Zugang als Benutzer `pi`, der in der Standardkonfiguration von Raspberry Pi OS per `sudo` root werden kann.
 - **`/etc/navika.env`** wird von Root-Cronjobs per `source` geladen und muss `root:root` gehören und darf für andere nicht schreibbar sein (das Setup setzt das).
 - **TCP-Server** (Port 4242, alle Interfaces) ist standardmäßig aus; aktivieren mit `TCP_SERVER="yes"`.
 - **SSH-Passwort-Login** wird nur auf ausdrückliche Rückfrage aktiviert; bevorzugt SSH-Schlüssel.

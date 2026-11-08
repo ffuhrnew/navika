@@ -106,9 +106,10 @@ Zustandsdateien (Fehlerzaehler, Cooldown) liegen unter /run.
 
 ### scripts/navika-listener.sh
 Wrapper fuer die Listener-Services rnsh, rncp und rnx (Aufruf: navika-listener.sh rnsh|rncp|rnx).
-Liest ALLOWED_IDENTITIES (Identity-Hashes, je 32 Hex-Zeichen) aus /etc/navika.env und startet den
-Listener mit je einem -a pro Hash. Ist die Liste leer, startet nichts (Absicht). Ungueltige Hashes
-brechen den Start ab.
+Liest die Allow-Liste des Dienstes (ALLOWED_IDENTITIES_RNSH, _RNCP bzw. _RNX; Identity-Hashes, je 32
+Hex-Zeichen) aus /etc/navika.env und startet den Listener mit je einem -a pro Hash. Jedes Programm hat
+eine eigene Identity, die Listen sind bewusst getrennt, eine gemeinsame Liste gibt es nicht. Ist die
+Liste leer, startet der Dienst nicht (Absicht). Ungueltige Hashes brechen den Start ab.
 
 ### scripts/send-status.sh
 Laeuft alle 3 Stunden via Cron als User pi. Sendet Hostname, RAM-Status
@@ -177,3 +178,9 @@ verifizieren. Backup statt Loeschen ist der Standard in allen Scripts.
 
 - rnx: kein periodisches Re-Announce, externer Timer-Workaround nicht umgesetzt
 - AP-Passwort-Handling in wlan-creator.sh: interaktive Eingabe, kein Default
+
+### Startreihenfolge der Services
+rnsd.service wartet per ExecStartPost bis zu 60 Sekunden, bis rnsd selbst den Socket @rns/default/rpc
+haelt; erst dann gilt die Unit als gestartet. rnsh, rncp und rnx haben After= und Requires=rnsd.service.
+Grund: Ein Client, der vor rnsd bereitsteht, wird selbst zur Shared Instance und haelt den RNode mit
+der alten Konfiguration (Fehlerbild: rnsd meldet "connected to another shared local instance").
