@@ -108,9 +108,9 @@ done
 
 echo "--- 6. Kopiere und berechtige alle Wartungs-Skripte ---"
 # Kopiert alle Skripte stumm nach /usr/local/bin/
-sudo cp /home/pi/deploy/navika/scripts/{rnode-watchdog.sh,rns-announce-all.py,rns-notify.py,send-status.sh,navika-listener.sh} /usr/local/bin/
+sudo cp /home/pi/deploy/navika/scripts/{rnode-watchdog.sh,rns-announce-all.py,rns-notify.py,send-status.sh,navika-listener.sh,navika-set-nomadnet-name.sh,navika-samaya-sync.sh} /usr/local/bin/
 # Macht die Skripte erst auf dem Ziel-Dateisystem ausführbar
-sudo chmod +x /usr/local/bin/{rnode-watchdog.sh,rns-announce-all.py,rns-notify.py,send-status.sh,navika-listener.sh}
+sudo chmod +x /usr/local/bin/{rnode-watchdog.sh,rns-announce-all.py,rns-notify.py,send-status.sh,navika-listener.sh,navika-set-nomadnet-name.sh,navika-samaya-sync.sh}
 
 # --- PATH-Erweiterung fuer Benutzer 'pi' (Permanent & Idempotent) ---
 BASHRC="/home/pi/.bashrc"
@@ -127,6 +127,23 @@ crontab /home/pi/deploy/navika/finalize/crontab_pi.template
 echo "--- 8. Hostname finalisieren ---"
 sudo sed -i "/127.0.1.1/d;\$a 127.0.1.1 ${NODE_NAME}" /etc/hosts
 sudo hostnamectl set-hostname "${NODE_NAME}"
+
+echo "--- 9. NomadNet-Anzeigename ---"
+/usr/local/bin/navika-set-nomadnet-name.sh || echo "WARNUNG: NomadNet-Anzeigename konnte nicht gesetzt werden."
+
+echo "--- 10. Zeitsynchronisation per Samaya (optional) ---"
+if [ "${SAMAYA_ENABLE:-no}" != "yes" ]; then
+    echo "SAMAYA_ENABLE nicht yes - uebersprungen."
+elif ! [[ "${SAMAYA_TIME_SERVER_KEY:-}" =~ ^[0-9a-fA-F]{128}$ ]]; then
+    echo "WARNUNG: SAMAYA_TIME_SERVER_KEY fehlt oder ist ungueltig (128 Hex-Zeichen) - Samaya uebersprungen."
+else
+    export PATH="$PATH:/home/pi/.local/bin"
+    pipx install --force "git+https://github.com/ffuhrnew/samaya@${SAMAYA_REF:-v0.1.0}"
+    sudo cp /home/pi/deploy/navika/systemd-templates/samaya/samaya-sync.{service,timer} /etc/systemd/system/
+    sudo systemctl daemon-reload
+    sudo systemctl enable samaya-sync.timer &>/dev/null
+    echo "Samaya-Zeitsync eingerichtet (Timer startet nach dem Neustart)."
+fi
 
 echo ""
 echo "======================================================"
