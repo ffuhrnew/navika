@@ -41,7 +41,7 @@ Alarm-Benachrichtigungen und Offline-WLAN-AP-Setup.
 - **SSH-Passwort-Login** wird nur auf ausdrückliche Rückfrage aktiviert; bevorzugt SSH-Schlüssel.
 - **WLAN-AP:** Das Passwort (8 bis 63 Zeichen) wird interaktiv abgefragt und nie im Repo gespeichert.
 - **Cronjobs:** `crontab <Datei>` im Setup ersetzt die bestehenden Crontabs von `root` und `pi`.
-- **Funk:** Die Standardparameter (869,525 MHz, 125 kHz, SF9, 22 dBm) sind für EU868 ausgelegt; für die Einhaltung lokaler Vorschriften ist der Betreiber verantwortlich.
+- **Funk:** Die Standardparameter (869,525 MHz, 125 kHz, SF8, 22 dBm) sind für EU868 ausgelegt; für die Einhaltung lokaler Vorschriften ist der Betreiber verantwortlich.
 
 ## Lizenz
 

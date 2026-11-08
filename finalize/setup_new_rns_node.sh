@@ -66,7 +66,7 @@ cat > ~/.reticulum/config << 'CFGEOF'
     frequency = 869525000
     bandwidth = 125000
     txpower = 22
-    spreadingfactor = 9
+    spreadingfactor = 8
     codingrate = 5
     mode = full
     interface_enabled = true

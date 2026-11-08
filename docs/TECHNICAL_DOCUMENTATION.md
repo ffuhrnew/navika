@@ -68,7 +68,7 @@ hier veraltet). Ablauf:
 ### Fleet-Standard .reticulum/config
 
 RNode LoRa Relay: frequency 869525000, bandwidth 125000, txpower 22,
-spreadingfactor 9, codingrate 5, mode full, announce_rate_target 3600,
+spreadingfactor 8, codingrate 5, mode full, announce_rate_target 3600,
 announce_rate_grace 360.
 TCP Server (nur bei TCP_SERVER=yes in /etc/navika.env): listen_ip 0.0.0.0, listen_port 4242.
 
