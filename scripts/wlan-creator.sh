@@ -14,7 +14,7 @@ if [ "${#TARGET_NETWORKS[@]}" -eq 0 ] || [[ " ${TARGET_NETWORKS[*]} " == *" WLAN
 fi
 
 echo "======================================================"
-echo " WLAN CREATOR: RADIKALE FELDKONFIGURATION"
+echo " WLAN CREATOR: FELDKONFIGURATION"
 echo "======================================================"
 
 read -s -p "1. BITTE WLAN-PASSWORT FÜR DIE CLIENT-NETZE EINGEBEN: " WIFI_PASS
@@ -35,13 +35,13 @@ NODE_NAME=$(hostname)
 AP_SSID="${NODE_NAME}-AP"
 
 echo "------------------------------------------------------"
-echo "=== 1. RADIKALE RASUR: Schalte ALLE WLAN-Profile stumm ==="
+echo "=== 1. Autostart aller WLAN-Profile abschalten ==="
 # Holt jedes WLAN-Profil (Ethernet u.a. bleiben unangetastet)
 mapfile -t ALL_EXISTING < <(nmcli -t -f TYPE,NAME connection show | grep '^802-11-wireless:' | cut -d: -f2-)
 for PROFILE in "${ALL_EXISTING[@]}"; do
     if [ -n "$PROFILE" ]; then
         sudo nmcli connection modify "$PROFILE" connection.autoconnect no connection.autoconnect-priority 0 &>/dev/null || true
-        echo "[Befriedet] Autostart deaktiviert für: $PROFILE"
+        echo "[OK] Autostart deaktiviert für: $PROFILE"
     fi
 done
 
@@ -61,7 +61,7 @@ for SSID in "${TARGET_NETWORKS[@]}"; do
 done
 
 echo "------------------------------------------------------"
-echo "=== 3. Echten Wald-AP anlegen & als EINZIGEN erzwingen ==="
+echo "=== 3. Access Point anlegen (einziges Autoconnect-Profil) ==="
 sudo mkdir -p /etc/NetworkManager/system-connections
 sudo rm -f "/etc/NetworkManager/system-connections/${AP_SSID}.nmconnection"
 sudo install -m 600 -o root -g root /dev/null "/etc/NetworkManager/system-connections/${AP_SSID}.nmconnection"
@@ -93,7 +93,7 @@ method=ignore
 NMEOF
 
 sudo chmod 600 "/etc/NetworkManager/system-connections/${AP_SSID}.nmconnection"
-echo "[OK] AP-Profil für ${AP_SSID} wurde passiv hinterlegt."
+echo "[OK] AP-Profil für ${AP_SSID} wurde angelegt."
 
 # Zwingt den NetworkManager, die Änderungen sofort aktiv zu fressen
 sudo nmcli connection reload
@@ -102,5 +102,5 @@ sudo nmcli connection reload
 sudo nmcli connection modify "${AP_SSID}" connection.autoconnect yes connection.autoconnect-priority 100 &>/dev/null || true
 
 echo "------------------------------------------------------"
-echo "FELD-SETUP FERTIG! AP hat die absolute Macht, alle anderen schlafen."
+echo "Feld-Setup fertig. Nur der AP startet automatisch."
 echo "======================================================"

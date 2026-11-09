@@ -127,7 +127,7 @@ echo "--- 7. Richte Cronjobs ein (Idempotent) ---"
 sudo crontab /home/pi/deploy/navika/finalize/crontab_root.template
 crontab /home/pi/deploy/navika/finalize/crontab_pi.template
 echo "--- 8. Hostname finalisieren ---"
-sudo sed -i "/127.0.1.1/d;\$a 127.0.1.1 ${NODE_NAME}" /etc/hosts
+sudo sed -i "/127.0.1.1/d;\$a 127.0.1.1 ${NODE_NAME} $(hostname)" /etc/hosts
 sudo hostnamectl set-hostname "${NODE_NAME}"
 # cloud-init auf denselben Hostnamen setzen, sonst setzt es ihn beim Boot zurueck
 [ -f /boot/firmware/user-data ] && sudo sed -i "s/^hostname:.*/hostname: ${NODE_NAME}/" /boot/firmware/user-data
@@ -155,7 +155,7 @@ fi
 echo ""
 echo "======================================================"
 echo " SETUP ERFOLGREICH BEENDET."
-echo " Skripte, Services und Cronjobs wurden exakt registriert."
+echo " Skripte, Services und Cronjobs sind eingerichtet."
 echo "======================================================"
 echo ""
 
