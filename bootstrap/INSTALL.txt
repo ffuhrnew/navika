@@ -1,20 +1,31 @@
 1. Frischen Node booten (bucht sich in das vorkonfigurierte Setup-WLAN ein)
 2. Per SSH auf den neuen Node schalten
-3. Auf dem Node das Verzeichnis anlegen und das Pull-Skript vom Deploy-Host holen:
+3. Konfigurationsdatei /etc/navika.env mit den Angaben zum Deploy-Host anlegen
+   (DEPLOY_HOST_IP ist Pflicht, DEPLOY_USER und DEPLOY_REPO_PATH sind optional,
+   TARGET_NETWORKS braucht spaeter wlan-creator.sh):
+   sudo tee /etc/navika.env > /dev/null << 'EOF'
+   DEPLOY_HOST_IP="<DEPLOY_HOST_IP>"
+   DEPLOY_USER="pi"
+   DEPLOY_REPO_PATH="~/build/navika"
+   TARGET_NETWORKS=("<WLAN_SSID>")
+   EOF
+   Alle weiteren Optionen (Hashes, Allow-Listen, Samaya ...) stehen in
+   config-templates/navika.env.example und koennen nach dem Pull ergaenzt werden.
+4. Das Pull-Skript vom Deploy-Host holen (Werte aus Schritt 3 verwenden):
    mkdir -p ~/deploy/navika/bootstrap
-   ssh <USER>@<DEPLOY_HOST_IP> "cat ~/build/navika/bootstrap/pull_from_host.sh" > ~/deploy/navika/bootstrap/pull_from_host.sh
-4. In den Ordner wechseln, DEPLOY_HOST_IP anpassen (oder /etc/navika.env anlegen) und ausführen:
+   ssh <DEPLOY_USER>@<DEPLOY_HOST_IP> "cat <DEPLOY_REPO_PATH>/bootstrap/pull_from_host.sh" > ~/deploy/navika/bootstrap/pull_from_host.sh
+5. In den Ordner wechseln und ausfuehren:
    cd ~/deploy/navika/bootstrap
    chmod +x pull_from_host.sh && ./pull_from_host.sh
-5. Bootstrap-Skript ausführen:
+6. Bootstrap-Skript ausfuehren:
    ./bootstrap_new_node.sh
-6. System manuell neustarten:
+7. System manuell neustarten:
    sudo reboot
-7. Erneut per SSH auf den Node schalten
-8. In den Finalize-Ordner wechseln:
-   cd ~/deploy/navika/finalize
-9. Finalize-Skript ausführen:
-   ./setup_new_rns_node.sh
-10. Interaktive Abfrage für wlan-creator.sh mit "j" bestätigen
+8. Erneut per SSH auf den Node schalten
+9. Finalize-Skript mit vollem Pfad ausfuehren:
+   ~/deploy/navika/finalize/setup_new_rns_node.sh
+10. Interaktive Abfrage fuer wlan-creator.sh mit "j" bestaetigen
 11. System final neustarten:
     sudo reboot
+    Danach ist der Node nur noch ueber seinen eigenen Access Point, per Kabel
+    oder mit Bildschirm erreichbar.

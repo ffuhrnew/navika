@@ -3,7 +3,15 @@ set -e
 
 # Ziel-WLANs aus /etc/navika.env laden oder Fallback nutzen
 [ -f /etc/navika.env ] && source /etc/navika.env
-TARGET_NETWORKS=("${TARGET_NETWORKS[@]:-WLAN_SSID_1}")
+
+# Ohne eigene Ziel-WLANs (oder mit den Platzhaltern der Vorlage) nicht weitermachen
+if [ "${#TARGET_NETWORKS[@]}" -eq 0 ] || [[ " ${TARGET_NETWORKS[*]} " == *" WLAN_SSID_"* ]]; then
+    echo "FEHLER: TARGET_NETWORKS fehlt oder enthaelt noch die Platzhalter (WLAN_SSID_1 ...)."
+    echo "Bitte in /etc/navika.env die echten WLAN-Namen eintragen, z. B.:"
+    echo "  TARGET_NETWORKS=(\"MeinWLAN\")"
+    echo "Danach erneut starten: /home/pi/deploy/navika/scripts/wlan-creator.sh"
+    exit 1
+fi
 
 echo "======================================================"
 echo " WLAN CREATOR: RADIKALE FELDKONFIGURATION"

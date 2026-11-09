@@ -61,4 +61,5 @@ echo ""
 echo "Bootstrap fertig. Installierte pipx venvs:"
 pipx list
 
-echo "Nächster Schritt: reboot, dann finalize/setup_new_rns_node.sh"
+echo "Nächster Schritt: sudo reboot, danach per SSH:"
+echo "  ~/deploy/navika/finalize/setup_new_rns_node.sh"
