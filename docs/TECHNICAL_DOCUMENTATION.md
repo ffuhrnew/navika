@@ -98,7 +98,10 @@ Das AP-Passwort muss 8 bis 63 Zeichen lang sein (WPA2).
 ### scripts/wlan-selector.sh
 Separates, rein manuelles Interaktiv-Tool, nicht Teil des automatisierten
 Setup-Flows. Zeigt alle WLAN-Profile mit Status, laesst ein Zielprofil
-fuer den naechsten Boot auswaehlen.
+fuer den naechsten Boot auswaehlen. Aendert wie wlan-creator.sh nur autoconnect und
+autoconnect-priority der Profile (keine Aktivierung, kein Neustart); die laufende
+Verbindung bleibt bestehen. Dient auch als Rueckweg nach wlan-creator.sh: der AP steht
+als Profil in der Liste, vor dem Neustart kann wieder ein Client-WLAN gewaehlt werden.
 
 ### scripts/rnode-watchdog.sh
 Laeuft alle 5 Minuten via Cron als root. Prueft ob rnsd, nomadnet, rnsh,

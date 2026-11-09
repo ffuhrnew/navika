@@ -158,6 +158,10 @@ echo ""
 chmod +x /home/pi/deploy/navika/scripts/*.sh /home/pi/deploy/navika/scripts/*.py 2>/dev/null || true
 
 # INTERAKTIVE ABFRAGE FÜR DEN WLAN-CREATOR
+echo "ACHTUNG: wlan-creator macht den eigenen Access Point zum einzigen WLAN mit Autoconnect."
+echo "Das gilt ab dem NAECHSTEN Neustart: Danach verbindet sich der Node nicht mehr mit dem lokalen WLAN,"
+echo "sondern ist nur ueber seinen AP, per Kabel oder mit Bildschirm erreichbar."
+echo "Rueckgaengig vor dem Neustart: wlan-selector.sh (Client-WLAN fuer den naechsten Boot waehlen)."
 read -p "Soll der wlan-creator JETZT ausgeführt werden? (j/n): " RUN_CREATOR
 if [[ "$RUN_CREATOR" =~ ^[Jj]$ ]]; then
     echo -e "\n--- Starte wlan-creator.sh ---"

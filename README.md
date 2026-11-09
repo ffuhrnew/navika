@@ -33,6 +33,8 @@ Alarm-Benachrichtigungen und Offline-WLAN-AP-Setup.
 | Standalone AP (`wlan-creator.sh`) | Kein lokales WLAN am Standort | Node spannt eigenes WPA2-AP-Netz (`<HOSTNAME>-AP`) mit DHCP auf |
 | Client-WLAN (`wlan-selector.sh`) | Stationäre WLAN-Infrastruktur vor Ort | Auswahl eines hinterlegten Client-WLANs mit Priorität 100 |
 
+Beide Skripte ändern nur Autoconnect und Priorität der WLAN-Profile; die laufende Verbindung bleibt bestehen. Wirksam wird es beim nächsten Neustart: Nach `wlan-creator.sh` ist der eigene AP das einzige Profil mit Autoconnect, ein Node, der nur per WLAN erreichbar war, ist dann nur noch über seinen AP, per Kabel oder mit Bildschirm erreichbar. Rückgängig vor dem Neustart: `wlan-selector.sh`.
+
 ## Optionale Funktionen
 
 **Zeitsynchronisation per Samaya** (Standard: aus)
