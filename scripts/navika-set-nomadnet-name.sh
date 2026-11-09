@@ -3,6 +3,7 @@
 # Name: NOMADNET_DISPLAY_NAME aus /etc/navika.env, leer = <Hostname>_OP.
 # NomadNet schreibt peersettings bei jedem Speichern neu, deshalb wird nur bei gestopptem Dienst geaendert.
 set -eu
+[ "$(id -un)" = "pi" ] || { echo "Muss als pi laufen (sudo -u pi -H)." >&2; exit 1; }
 [ -f /etc/navika.env ] && source /etc/navika.env
 NAME="${NOMADNET_DISPLAY_NAME:-$(hostname)_OP}"
 PY="${HOME}/.local/share/pipx/venvs/nomadnet/bin/python3"
@@ -18,6 +19,7 @@ if [ ! -f "$PS" ]; then
 fi
 
 $SC stop nomadnet
+trap 'rc=$?; [ "$rc" -eq 0 ] || $SC start nomadnet' EXIT
 cp -a "$PS" "$PS.bak"
 NAME="$NAME" PS="$PS" "$PY" -c '
 import RNS.vendor.umsgpack as m, os

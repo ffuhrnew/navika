@@ -9,6 +9,7 @@
 #   NOMADNET_DISPLAY_NAME           Operatorname (leer = <Hostname>_OP)
 # NomadNet schreibt seine Dateien selbst; deshalb wird der Dienst vor den Aenderungen gestoppt.
 set -eu
+[ "$(id -un)" = "pi" ] || { echo "Muss als pi laufen (sudo -u pi -H)." >&2; exit 1; }
 ENVF="${NAVIKA_ENV:-/etc/navika.env}"
 [ -f "$ENVF" ] && source "$ENVF"
 HOME_DIR="${NOMADNET_HOME:-$HOME/.nomadnetwork}"
@@ -84,10 +85,17 @@ if [ "$PAGE" = yes ]; then
     [ "$CNT" -gt 0 ] || echo "WARNUNG: Allow-Liste ist leer - niemand kann die Statusseite sehen."
 fi
 
-[ -f "$CFG" ] || { echo "NomadNet-Config fehlt ($CFG) - zuerst navika-set-nomadnet-name.sh ausfuehren." >&2; exit 1; }
+if [ ! -f "$CFG" ]; then
+    echo "NomadNet-Config fehlt - starte nomadnet einmal, damit sie angelegt wird."
+    $SC start nomadnet
+    for _ in $(seq 1 60); do [ -f "$CFG" ] && break; sleep 1; done
+    sleep 2
+fi
+[ -f "$CFG" ] || { echo "NomadNet-Config fehlt ($CFG) - nomadnet konnte die Config nicht anlegen." >&2; exit 1; }
 
 # --- 2. Anwenden ---
 $SC stop nomadnet
+trap 'rc=$?; rm -f "${ALLOWTMP:-}"; [ "$rc" -eq 0 ] || $SC start nomadnet' EXIT
 cp -a "$CFG" "$CFG.bak.$TS"
 awk -v name="$NAME" '
     /^\[/ { sec = $0 }

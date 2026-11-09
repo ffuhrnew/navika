@@ -13,7 +13,9 @@ echo " CORE SETUP: FINALIZE NODE (SERVICES & IDENTITY)"
 echo "======================================================"
 
 # 1. Hostname abfragen
-read -p "WIE SOLL DER HOST HEISSEN: " NODE_NAME
+NODE_NAME="${NODE_HOSTNAME:-}"
+[ -n "$NODE_NAME" ] || read -p "WIE SOLL DER HOST HEISSEN: " NODE_NAME
+[[ "$NODE_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9-]*$ ]] || { echo "FEHLER: Ungueltiger Hostname!"; exit 1; }
 if [ -z "$NODE_NAME" ]; then
     echo "FEHLER: Hostname darf nicht leer sein!"
     exit 1
@@ -127,12 +129,14 @@ crontab /home/pi/deploy/navika/finalize/crontab_pi.template
 echo "--- 8. Hostname finalisieren ---"
 sudo sed -i "/127.0.1.1/d;\$a 127.0.1.1 ${NODE_NAME}" /etc/hosts
 sudo hostnamectl set-hostname "${NODE_NAME}"
+# cloud-init auf denselben Hostnamen setzen, sonst setzt es ihn beim Boot zurueck
+[ -f /boot/firmware/user-data ] && sudo sed -i "s/^hostname:.*/hostname: ${NODE_NAME}/" /boot/firmware/user-data
 
 echo "--- 9. NomadNet-Anzeigename ---"
-/usr/local/bin/navika-set-nomadnet-name.sh || echo "WARNUNG: NomadNet-Anzeigename konnte nicht gesetzt werden."
+sudo -u pi -H /usr/local/bin/navika-set-nomadnet-name.sh || echo "WARNUNG: NomadNet-Anzeigename konnte nicht gesetzt werden."
 
 echo "--- 10. NomadNet-Node (optional) ---"
-/usr/local/bin/navika-nomadnet-node.sh || echo "WARNUNG: NomadNet-Node konnte nicht eingerichtet werden."
+sudo -u pi -H /usr/local/bin/navika-nomadnet-node.sh || echo "WARNUNG: NomadNet-Node konnte nicht eingerichtet werden."
 
 echo "--- 11. Zeitsynchronisation per Samaya (optional) ---"
 if [ "${SAMAYA_ENABLE:-no}" != "yes" ]; then

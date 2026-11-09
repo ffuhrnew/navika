@@ -1,6 +1,7 @@
 #!/bin/bash
 # Läuft EINMALIG auf frisch geflashter SD-Karte (Raspberry Pi OS Lite 64-bit, Trixie).
 set -e
+bash "$(dirname "$0")/../scripts/navika-config-wizard.sh"
 echo "--- apt update/upgrade ---"
 sudo apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y full-upgrade
@@ -34,7 +35,6 @@ pipx inject rns lxmf
 
 echo "--- pipx venv: nomadnet ---"
 pipx install nomadnet
-pipx inject nomadnet rns lxmf
 
 echo "--- pipx venv: meshcore-cli ---"
 pipx install meshcore-cli || echo "WARNUNG: meshcore-cli fehlgeschlagen, ggf. später nachholen."
