@@ -65,9 +65,10 @@ hier veraltet). Ablauf:
 11. Cronjobs aus den Templates einrichten
 12. Hostname final setzen (zuerst /etc/hosts, dann hostnamectl, sonst warnt sudo)
 13. NomadNet-Anzeigename setzen (navika-set-nomadnet-name.sh)
-14. Optional (SAMAYA_ENABLE=yes): samaya per pipx aus dem Tag installieren, samaya-sync.service
+14. Optional: NomadNet-Node mit Start- und Statusseite (navika-nomadnet-node.sh, fragt nach)
+15. Optional (SAMAYA_ENABLE=yes): samaya per pipx aus dem Tag installieren, samaya-sync.service
     und .timer einrichten
-15. Interaktive Abfrage: wlan-creator.sh jetzt ausfuehren? j/n
+16. Interaktive Abfrage: wlan-creator.sh jetzt ausfuehren? j/n
 
 ### Fleet-Standard .reticulum/config
 
@@ -123,6 +124,29 @@ Einstellungen im Speicher und schreibt die Datei bei jedem Speichern neu; deshal
 vor der Aenderung gestoppt und danach gestartet. Fehlt peersettings noch (frischer Node), startet
 das Skript NomadNet einmal, wartet bis zu 60 Sekunden auf die Datei und aendert sie dann.
 Vorher wird peersettings.bak angelegt.
+
+### scripts/navika-nomadnet-node.sh
+Richtet optional eine NomadNet-Node ein (Setup-Schritt 10, einzeln auch auf einem
+laufenden Node nutzbar). Zuerst werden alle Eingaben abgefragt und geprueft, erst
+danach wird NomadNet gestoppt und etwas geaendert; bei einem Fehler bleibt die Config
+unberuehrt. Ablauf: Abfrage ob eine Node laufen soll, Node-Name (Standard
+<HOSTNAME>-NODE in Grossbuchstaben), Abfrage ob eine Start- und Statusseite gebaut
+werden soll. Aenderungen: enable_node und node_name im Abschnitt [node] von
+~/.nomadnetwork/config (Sicherung als config.bak.<Zeitstempel>), Seiten aus
+nomadnet-templates/ nach ~/.nomadnetwork/storage/pages (bestehende Dateien werden als
+.bak.<Zeitstempel> gesichert, nie ueberschrieben). Optionen in /etc/navika.env:
+NOMADNET_NODE, NOMADNET_NODE_NAME, NOMADNET_STATUS_PAGE,
+NOMADNET_STATUS_ALLOWED_FILE, NOMADNET_OPERATOR_LXMF, NOMADNET_DISPLAY_NAME; fehlende
+Werte werden abgefragt.
+
+### nomadnet-templates/
+index.mu (Startseite, Platzhalter @NODE_NAME@, @OPERATOR_NAME@, @OPERATOR_LXMF@; ohne
+LXMF-Adresse entfaellt die Zeile) und status.mu (dynamische Seite, Python, muss
+ausfuehrbar sein). status.mu zeigt rnstatus und die Pfadtabelle (0 bis 1 Hops) nur
+Identities aus status_allowed neben der Seite (Format hash,name, Kommentare mit #).
+Alle anderen sehen "Zugriff verweigert". Die Allow-Liste liegt nie im Repo: Das Setup
+fragt Hash und Name ab oder uebernimmt eine Datei (NOMADNET_STATUS_ALLOWED_FILE).
+Eine leere Liste ergibt eine Statusseite, die niemand sehen kann.
 
 ### scripts/navika-samaya-sync.sh
 Wrapper fuer samaya-sync.service (laeuft als root, nur root darf die Systemuhr stellen). Liest

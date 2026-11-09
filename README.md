@@ -47,6 +47,9 @@ Das Setup installiert `samaya` per pipx aus dem öffentlichen Repo mit festem Ta
 **NomadNet-Anzeigename**
 `NOMADNET_DISPLAY_NAME` in `/etc/navika.env`. Leer bedeutet `<Hostname>_OP`. Das Setup setzt den Namen in Schritt 9. Auf einem laufenden Node geht es auch einzeln mit `navika-set-nomadnet-name.sh` (stoppt NomadNet dabei kurz).
 
+**NomadNet-Node mit Statusseite**
+Das Setup fragt, ob eine NomadNet-Node laufen soll (Name `<HOSTNAME>-NODE`, in Großbuchstaben). Bei „ja" kann es eine Start- und eine Statusseite bauen. Die Statusseite zeigt `rnstatus` und die Pfadtabelle nur Identitäten aus einer Allow-Liste (Hash und Name, wird abgefragt oder aus einer Datei übernommen: `NOMADNET_STATUS_ALLOWED_FILE`). Die Operator-LXMF-Adresse auf der Startseite kommt aus `NOMADNET_OPERATOR_LXMF`. Alle Optionen stehen in `config-templates/navika.env.example`; Allow-Liste und Adressen liegen nie im Repo.
+
 **rncp-Eingang**
 Per `rncp` empfangene Dateien landen in `~/rncp-inbox`. Der Pfad ist mit `RNCP_SAVE_PATH` in `/etc/navika.env` änderbar.
 
