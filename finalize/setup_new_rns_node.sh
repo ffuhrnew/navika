@@ -108,9 +108,9 @@ done
 
 echo "--- 6. Kopiere und berechtige alle Wartungs-Skripte ---"
 # Kopiert alle Skripte stumm nach /usr/local/bin/
-sudo cp /home/pi/deploy/navika/scripts/{rnode-watchdog.sh,rns-announce-all.py,rns-notify.py,send-status.sh,navika-listener.sh,navika-set-nomadnet-name.sh,navika-samaya-sync.sh} /usr/local/bin/
+sudo cp /home/pi/deploy/navika/scripts/{rnode-watchdog.sh,rns-announce-all.py,rns-notify.py,send-status.sh,navika-listener.sh,navika-set-nomadnet-name.sh,navika-samaya-sync.sh,navika-nomadnet-node.sh} /usr/local/bin/
 # Macht die Skripte erst auf dem Ziel-Dateisystem ausführbar
-sudo chmod +x /usr/local/bin/{rnode-watchdog.sh,rns-announce-all.py,rns-notify.py,send-status.sh,navika-listener.sh,navika-set-nomadnet-name.sh,navika-samaya-sync.sh}
+sudo chmod +x /usr/local/bin/{rnode-watchdog.sh,rns-announce-all.py,rns-notify.py,send-status.sh,navika-listener.sh,navika-set-nomadnet-name.sh,navika-samaya-sync.sh,navika-nomadnet-node.sh}
 
 # --- PATH-Erweiterung fuer Benutzer 'pi' (Permanent & Idempotent) ---
 BASHRC="/home/pi/.bashrc"
@@ -131,7 +131,10 @@ sudo hostnamectl set-hostname "${NODE_NAME}"
 echo "--- 9. NomadNet-Anzeigename ---"
 /usr/local/bin/navika-set-nomadnet-name.sh || echo "WARNUNG: NomadNet-Anzeigename konnte nicht gesetzt werden."
 
-echo "--- 10. Zeitsynchronisation per Samaya (optional) ---"
+echo "--- 10. NomadNet-Node (optional) ---"
+/usr/local/bin/navika-nomadnet-node.sh || echo "WARNUNG: NomadNet-Node konnte nicht eingerichtet werden."
+
+echo "--- 11. Zeitsynchronisation per Samaya (optional) ---"
 if [ "${SAMAYA_ENABLE:-no}" != "yes" ]; then
     echo "SAMAYA_ENABLE nicht yes - uebersprungen."
 elif ! [[ "${SAMAYA_TIME_SERVER_KEY:-}" =~ ^[0-9a-fA-F]{128}$ ]]; then
