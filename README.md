@@ -22,6 +22,8 @@ Alarm-Benachrichtigungen und Offline-WLAN-AP-Setup.
    Hostname/SSH-Key/User `pi` vorkonfigurieren.
 2. Deployment-Skripte per `bootstrap/pull_from_host.sh` (oder `git clone`) auf den Node holen.
 3. `config-templates/navika.env.example` nach `/etc/navika.env` kopieren und eigene Ziel-Hashes, die Allow-Listen `ALLOWED_IDENTITIES_RNSH`, `ALLOWED_IDENTITIES_RNCP` und `ALLOWED_IDENTITIES_RNX` sowie WLAN-SSIDs eintragen. Jedes Programm hat auf dem Client eine eigene Identity (`rnsh -p`, `rncp -p`, `rnx -p`), deshalb gibt es je Dienst eine eigene Liste.
+
+   Alternativ legt `bootstrap_new_node.sh` die Datei beim Start per Assistent (`scripts/navika-config-wizard.sh`) an und fragt alle Werte ab.
 4. `bootstrap/bootstrap_new_node.sh` ausführen und neu starten (`sudo reboot`).
 5. `finalize/setup_new_rns_node.sh` ausführen, Hostname vergeben, optional `wlan-creator.sh` starten und abschließend neu starten (`sudo reboot`).
 6. Vor Produktivbetrieb: neue Identity-Hashes verifizieren.
@@ -51,6 +53,11 @@ Das Setup installiert `samaya` per pipx aus dem öffentlichen Repo mit festem Ta
 
 **NomadNet-Node mit Statusseite**
 Das Setup fragt, ob eine NomadNet-Node laufen soll (Name `<HOSTNAME>-NODE`, in Großbuchstaben). Bei „ja" kann es eine Start- und eine Statusseite bauen. Die Statusseite zeigt `rnstatus` und die Pfadtabelle nur Identitäten aus einer Allow-Liste (Hash und Name, wird abgefragt oder aus einer Datei übernommen: `NOMADNET_STATUS_ALLOWED_FILE`). Die Operator-LXMF-Adresse auf der Startseite kommt aus `NOMADNET_OPERATOR_LXMF`. Alle Optionen stehen in `config-templates/navika.env.example`; Allow-Liste und Adressen liegen nie im Repo.
+
+**Allow-Datei der Statusseite (`NOMADNET_STATUS_ALLOWED_FILE`):** optional. Ohne Angabe fragt das Setup Hash und Name interaktiv ab. Mit Angabe muss in `/etc/navika.env` ein **absoluter Pfad** auf eine vorhandene Textdatei auf dem Node stehen, zum Beispiel `/home/pi/status-allowed.txt`; relative Pfade werden abgelehnt. Die Datei liegt nie im Repo. Pro Zeile ein Eintrag `<32 Hex-Zeichen Identity-Hash>,<Name>`, Kommentare beginnen mit `#`:
+
+    # Beispiel
+    0123456789abcdef0123456789abcdef,MEIN-LAPTOP
 
 **rncp-Eingang**
 Per `rncp` empfangene Dateien landen in `~/rncp-inbox`. Der Pfad ist mit `RNCP_SAVE_PATH` in `/etc/navika.env` änderbar.

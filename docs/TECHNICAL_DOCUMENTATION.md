@@ -142,6 +142,13 @@ NOMADNET_NODE, NOMADNET_NODE_NAME, NOMADNET_STATUS_PAGE,
 NOMADNET_STATUS_ALLOWED_FILE, NOMADNET_OPERATOR_LXMF, NOMADNET_DISPLAY_NAME; fehlende
 Werte werden abgefragt.
 
+Allow-Datei (NOMADNET_STATUS_ALLOWED_FILE): Der Wert ist ein absoluter Pfad auf eine Textdatei auf dem
+Node, z. B. /home/pi/status-allowed.txt. Relative Pfade werden abgelehnt, die Datei liegt nie im Repo.
+Inhalt: je Zeile "<32 Hex-Zeichen Identity-Hash>,<Name>", Kommentare mit #. Ist die Variable nicht
+gesetzt, fragt das Skript Hash und Name interaktiv ab. In beiden Faellen schreibt es die Liste nach
+~/.nomadnetwork/storage/pages/status_allowed; diese Datei liest status.mu. Eine spaetere Aenderung der
+Quelldatei wirkt erst nach erneutem Lauf des Skripts.
+
 ### nomadnet-templates/
 index.mu (Startseite, Platzhalter @NODE_NAME@, @OPERATOR_NAME@, @OPERATOR_LXMF@; ohne
 LXMF-Adresse entfaellt die Zeile) und status.mu (dynamische Seite, Python, muss

@@ -60,7 +60,11 @@ if [ "$PAGE" = yes ]; then
     trap 'rm -f "$ALLOWTMP"' EXIT
     echo "# status_allowed - Format: hash,name (Kommentare mit #)" > "$ALLOWTMP"
     if [ -n "${NOMADNET_STATUS_ALLOWED_FILE:-}" ]; then
-        [ -f "$NOMADNET_STATUS_ALLOWED_FILE" ] || { echo "Allow-Datei fehlt: $NOMADNET_STATUS_ALLOWED_FILE" >&2; exit 1; }
+        case "$NOMADNET_STATUS_ALLOWED_FILE" in
+            /*) ;;
+            *) echo "NOMADNET_STATUS_ALLOWED_FILE muss ein absoluter Pfad sein (z. B. /home/pi/status-allowed.txt), steht aber: $NOMADNET_STATUS_ALLOWED_FILE" >&2; exit 1 ;;
+        esac
+        [ -f "$NOMADNET_STATUS_ALLOWED_FILE" ] || { echo "Allow-Datei nicht gefunden: $NOMADNET_STATUS_ALLOWED_FILE" >&2; echo "Inhalt je Zeile: <32 Hex-Zeichen Identity-Hash>,<Name>. Ohne NOMADNET_STATUS_ALLOWED_FILE fragt das Skript die Liste interaktiv ab." >&2; exit 1; }
         n=0
         while IFS= read -r line || [ -n "$line" ]; do
             n=$((n+1))
