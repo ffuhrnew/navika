@@ -14,25 +14,17 @@ echo "======================================================"
 
 # 1. Hostname abfragen
 NODE_NAME="${NODE_HOSTNAME:-}"
-if [ "$NODE_NAME" = "NAVIKA" ]; then NODE_NAME=""; fi   # Vorlagenwert aus navika.env -> immer nachfragen
 [ -n "$NODE_NAME" ] || read -p "WIE SOLL DER HOST HEISSEN: " NODE_NAME
 [[ "$NODE_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9-]*$ ]] || { echo "FEHLER: Ungueltiger Hostname!"; exit 1; }
-if [ -z "$NODE_NAME" ]; then
-    echo "FEHLER: Hostname darf nicht leer sein!"
-    exit 1
-fi
 echo "======================================================"
 
-echo "--- 1. machine-id & SSH Host Keys ---"
+echo "--- 1. machine-id ---"
 sudo rm -f /etc/machine-id
 sudo systemd-machine-id-setup
 sudo rm -f /var/lib/dbus/machine-id
 sudo ln -sf /etc/machine-id /var/lib/dbus/machine-id
 
-# Host-Keys werden bewusst nicht regeneriert (Block deaktiviert)
-#sudo mkdir -p /etc/ssh/old_keys_${TS}
-#sudo mv /etc/ssh/ssh_host_* /etc/ssh/old_keys_${TS}/ 2>/dev/null || true
-#sudo ssh-keygen -A
+# SSH-Host-Keys: werden in Schritt 12 erneuert
 
 echo "--- 1b. SSH-Passwort-Authentifizierung (optional) ---"
 # Optional: Passwort-Login erlauben (schwaecht die Absicherung)

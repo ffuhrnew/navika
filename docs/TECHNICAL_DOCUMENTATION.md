@@ -25,7 +25,7 @@ Frischer Node (Setup-WLAN)
 Laeuft einmalig auf frisch geflashter SD-Karte. Installiert:
 - System-Update (apt full-upgrade)
 - Basis-Pakete inkl. fake-hwclock (fuer zeitlose Boots ohne RTC)
-- pipx-venvs: rns (+lxmf injiziert), nomadnet (+rns/lxmf injiziert),
+- pipx-venvs: rns (+lxmf injiziert), nomadnet (rns und lxmf als Abhaengigkeit),
   meshcore-cli, meshtastic (CLI-Tool),
   rnsh
 - Bluetooth, NetworkManager, dialout/bluetooth-Gruppen
@@ -47,7 +47,7 @@ per read -p ab (kein Positionsparameter mehr, aeltere Doku-Versionen sind
 hier veraltet). Ablauf:
 1. Hostname abfragen
 2. machine-id neu generieren
-3. SSH-Host-Keys werden bewusst NICHT regeneriert (Block in setup_new_rns_node.sh ist auskommentiert)
+3. SSH-Host-Keys werden am Ende erneuert (Schritt 12 im Skript), weil Images geklont werden
 4. SSH-Passwort-Auth optional aktivieren (Abfrage j/N, sed in sshd_config)
    Bekannter Fallstrick: cloud-init kann das ueber
    /etc/ssh/sshd_config.d/50-cloud-init.conf ueberschreiben
