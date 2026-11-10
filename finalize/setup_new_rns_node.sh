@@ -14,6 +14,7 @@ echo "======================================================"
 
 # 1. Hostname abfragen
 NODE_NAME="${NODE_HOSTNAME:-}"
+if [ "$NODE_NAME" = "NAVIKA" ]; then NODE_NAME=""; fi   # Vorlagenwert aus navika.env -> immer nachfragen
 [ -n "$NODE_NAME" ] || read -p "WIE SOLL DER HOST HEISSEN: " NODE_NAME
 [[ "$NODE_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9-]*$ ]] || { echo "FEHLER: Ungueltiger Hostname!"; exit 1; }
 if [ -z "$NODE_NAME" ]; then
@@ -131,6 +132,10 @@ sudo sed -i "/127.0.1.1/d;\$a 127.0.1.1 ${NODE_NAME} $(hostname)" /etc/hosts
 sudo hostnamectl set-hostname "${NODE_NAME}"
 # cloud-init auf denselben Hostnamen setzen, sonst setzt es ihn beim Boot zurueck
 [ -f /boot/firmware/user-data ] && sudo sed -i "s/^hostname:.*/hostname: ${NODE_NAME}/" /boot/firmware/user-data
+# Hostname auch in navika.env nachziehen (Vorlagenwert ersetzen)
+[ -f /etc/navika.env ] && sudo sed -i "s/^NODE_HOSTNAME=.*/NODE_HOSTNAME=\"${NODE_NAME}\"/" /etc/navika.env
+# cloud-init soll Hostname und /etc/hosts nicht mehr ueberschreiben
+printf 'preserve_hostname: true\nmanage_etc_hosts: false\n' | sudo tee /etc/cloud/cloud.cfg.d/99-navika-hostname.cfg >/dev/null
 
 echo "--- 9. NomadNet-Anzeigename ---"
 sudo -u pi -H /usr/local/bin/navika-set-nomadnet-name.sh || echo "WARNUNG: NomadNet-Anzeigename konnte nicht gesetzt werden."
@@ -151,6 +156,13 @@ else
     sudo systemctl enable samaya-sync.timer &>/dev/null
     echo "Samaya-Zeitsync eingerichtet (Timer startet nach dem Neustart)."
 fi
+
+echo "--- 12. SSH-Host-Keys erneuern ---"
+# Die Keys aus dem Image sind auf allen geklonten Nodes identisch. sshd haelt die alten Keys im Speicher, die laufende Sitzung bleibt stabil.
+sudo mkdir -p /etc/ssh/old_keys_${TS}
+sudo mv /etc/ssh/ssh_host_* /etc/ssh/old_keys_${TS}/ 2>/dev/null || true
+sudo ssh-keygen -A
+echo "Neue Host-Keys erzeugt. Beim ersten Login danach ggf. 'ssh-keygen -R <host>' ausfuehren."
 
 echo ""
 echo "======================================================"

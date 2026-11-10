@@ -1,1 +1,4 @@
+# XIAO ESP32-S3 (Espressif, natives USB-Serial/JTAG)
 SUBSYSTEM=="tty", ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", SYMLINK+="ttyRNODE", GROUP="dialout", MODE="0660"
+# XIAO nRF52840 (Seeed)
+SUBSYSTEM=="tty", ATTRS{idVendor}=="2886", ATTRS{idProduct}=="0059", SYMLINK+="ttyRNODE", GROUP="dialout", MODE="0660"
