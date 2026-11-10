@@ -1,5 +1,39 @@
-1. Frischen Node booten (bucht sich in das vorkonfigurierte Setup-WLAN ein)
-2. Per SSH auf den neuen Node schalten
+navika - Installation eines neuen Nodes
+=======================================
+
+Voraussetzung: Raspberry Pi OS Lite (64-bit, Trixie), mit dem offiziellen Imager
+geflasht (Benutzer pi, SSH aktiviert, Setup-WLAN vorkonfiguriert). Der Node ist
+per SSH als pi erreichbar.
+
+Es gibt zwei Wege, die Dateien auf den Node zu bringen:
+  Weg A: git clone von GitHub (der Node braucht Internet)
+  Weg B: rsync vom Deploy-Host (der Node braucht nur Zugriff auf den Deploy-Host)
+Ab "Gemeinsam ab Bootstrap" sind beide Wege gleich. Das Repo muss auf dem Node
+immer unter ~/deploy/navika liegen, das Finalize-Skript verwendet diesen Pfad fest.
+
+
+WEG A: git clone
+----------------
+1. Per SSH als pi auf den Node schalten.
+2. Git installieren (auf dem frischen Image nicht vorhanden):
+   sudo apt install -y git
+3. Repo klonen und den Stand pruefen:
+   mkdir -p ~/deploy
+   git clone https://github.com/ffuhrnew/navika.git ~/deploy/navika
+   cd ~/deploy/navika
+   git log -1 --oneline
+4. Weiter mit "Gemeinsam ab Bootstrap".
+   Hinweis: Der Konfigurationsassistent fragt eine gueltige IPv4-Adresse fuer den
+   Deploy-Host ab. Bei Weg A wird sie nicht gebraucht; trage die IP des
+   Entwicklungsrechners ein.
+
+
+WEG B: rsync vom Deploy-Host
+----------------------------
+1. Frischen Node booten (verbindet sich mit dem vorkonfigurierten Setup-WLAN),
+   per SSH als pi anmelden.
+2. rsync pruefen. Das Pull-Skript braucht es, der Bootstrap installiert es nicht:
+   command -v rsync || sudo apt install -y rsync
 3. Konfigurationsdatei /etc/navika.env mit den Angaben zum Deploy-Host anlegen
    (DEPLOY_HOST_IP ist Pflicht, DEPLOY_USER und DEPLOY_REPO_PATH sind optional,
    TARGET_NETWORKS braucht spaeter wlan-creator.sh):
@@ -9,23 +43,71 @@
    DEPLOY_REPO_PATH="~/build/navika"
    TARGET_NETWORKS=("<WLAN_SSID>")
    EOF
-   Alle weiteren Optionen (Hashes, Allow-Listen, Samaya ...) stehen in
-   config-templates/navika.env.example und koennen nach dem Pull ergaenzt werden.
+   Weil die Datei damit schon existiert, ueberspringt der Konfigurationsassistent
+   sich spaeter selbst. Alle weiteren Optionen (Hashes, Allow-Listen, Samaya ...)
+   stehen in config-templates/navika.env.example und werden von Hand ergaenzt.
+   Wer die Fragen des Assistenten lieber haben will, loescht die Datei vor dem
+   Bootstrap wieder: sudo rm /etc/navika.env
 4. Das Pull-Skript vom Deploy-Host holen (Werte aus Schritt 3 verwenden):
    mkdir -p ~/deploy/navika/bootstrap
    ssh <DEPLOY_USER>@<DEPLOY_HOST_IP> "cat <DEPLOY_REPO_PATH>/bootstrap/pull_from_host.sh" > ~/deploy/navika/bootstrap/pull_from_host.sh
 5. In den Ordner wechseln und ausfuehren:
    cd ~/deploy/navika/bootstrap
    chmod +x pull_from_host.sh && ./pull_from_host.sh
-6. Bootstrap-Skript ausfuehren:
-   ./bootstrap_new_node.sh
-7. System manuell neustarten:
+   Achtung: rsync liefert den Arbeitsstand des Deploy-Hosts, nicht den Stand von
+   GitHub (ohne .git, README.md und docs/).
+6. Weiter mit "Gemeinsam ab Bootstrap".
+
+
+GEMEINSAM AB BOOTSTRAP
+----------------------
+1. Bootstrap ausfuehren:
+   cd ~/deploy/navika
+   bash bootstrap/bootstrap_new_node.sh
+   Als Erstes startet der Konfigurationsassistent, aber nur wenn /etc/navika.env
+   noch fehlt. Er fragt: Hostname, IP des Deploy-Hosts, Client-WLANs, Ziel-Hashes,
+   erlaubte Identities fuer rnsh, rncp und rnx, Samaya, NomadNet-Anzeigename und
+   TCP-Server. Eine leere Eingabe heisst "nicht gesetzt"; ohne Freigabe startet
+   der jeweilige Listener nicht. Danach laufen Updates und Paketinstallation
+   (mehrere Minuten).
+2. System manuell neustarten:
    sudo reboot
-8. Erneut per SSH auf den Node schalten
-9. Finalize-Skript mit vollem Pfad ausfuehren:
-   ~/deploy/navika/finalize/setup_new_rns_node.sh
-10. Interaktive Abfrage fuer wlan-creator.sh mit "j" bestaetigen
-11. System final neustarten:
-    sudo reboot
-    Danach ist der Node nur noch ueber seinen eigenen Access Point, per Kabel
-    oder mit Bildschirm erreichbar.
+3. Erneut per SSH auf den Node schalten.
+4. Finalize-Skript ohne sudo davor ausfuehren (es ruft sudo selbst auf):
+   bash ~/deploy/navika/finalize/setup_new_rns_node.sh
+   Der Hostname kommt aus dem Assistenten, sonst fragt das Skript ihn ab. Weitere
+   Fragen: SSH-Passwort-Login, NomadNet-Node mit Statusseite, wlan-creator.
+   Allow-Datei der Statusseite: NOMADNET_STATUS_ALLOWED_FILE in /etc/navika.env
+   ist ein ABSOLUTER Pfad (z. B. /home/pi/status-allowed.txt), je Zeile
+   "<32 Hex-Zeichen Identity-Hash>,<Name>". Ohne diese Variable fragt das Skript
+   Hash und Name interaktiv ab.
+5. Optional: Interaktive Abfrage fuer wlan-creator.sh mit "j" bestaetigen. Das Skript
+   fragt zwei Passwoerter (Client-WLAN und eigener Access Point). Danach ist der
+   eigene AP das einzige Profil mit Autoconnect. Rueckgaengig vor dem Neustart:
+   wlan-selector.sh.
+6. System final neustarten:
+   sudo reboot
+   Mit wlan-creator ist der Node danach nur noch ueber seinen eigenen Access Point,
+   per Kabel oder mit Bildschirm erreichbar. Die SSH-Host-Keys sind neu; auf dem
+   Client einmal ssh-keygen -R <host> ausfuehren.
+7. Pruefen:
+   hostname
+   systemctl status rnsd nomadnet --no-pager
+
+
+AKTUALISIEREN EINES LAUFENDEN NODES
+-----------------------------------
+Das Finalize-Skript NICHT erneut ausfuehren: es verschiebt die Reticulum-Identity,
+ueberschreibt die Reticulum-Config und erzeugt machine-id und SSH-Host-Keys neu.
+
+1. Neue Dateien holen:
+   Weg A: cd ~/deploy/navika && git pull --ff-only
+   Weg B: cd ~/deploy/navika/bootstrap && ./pull_from_host.sh
+2. Die Wartungsskripte liegen als Kopien in /usr/local/bin und muessen neu kopiert werden:
+   cd ~/deploy/navika
+   sudo cp scripts/{rnode-watchdog.sh,rns-announce-all.py,rns-notify.py,send-status.sh,navika-listener.sh,navika-set-nomadnet-name.sh,navika-samaya-sync.sh,navika-nomadnet-node.sh} /usr/local/bin/
+   sudo cp systemd-templates/*.service /etc/systemd/system/
+   sudo cp udev-templates/99-rnode.rules /etc/udev/rules.d/ && sudo udevadm control --reload-rules && sudo udevadm trigger
+   sudo systemctl daemon-reload
+3. Betroffene Dienste neu starten, z. B.:
+   sudo systemctl restart rnsd nomadnet
