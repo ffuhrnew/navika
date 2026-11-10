@@ -61,7 +61,7 @@ ask_yn() {
 
 echo "=== NAVIKA KONFIGURATION ==="
 ask_one "Hostname des Nodes: " "$RE_HOST" 1;  HN="$REPLY"
-ask_one "IP des Deploy-Hosts: " "$RE_IP" 1;   IP="$REPLY"
+ask_one "IP des Deploy-Hosts (leer = nicht gesetzt, nur fuer den rsync-Weg noetig): " "$RE_IP" 0; IP="$REPLY"
 
 NETS=""
 echo "Client-WLANs (leer = fertig, mindestens eines):"
@@ -102,7 +102,7 @@ trap 'rm -f "$TMP"' EXIT
 while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in
         NODE_HOSTNAME=*)            echo "NODE_HOSTNAME=\"$HN\"" ;;
-        DEPLOY_HOST_IP=*)           echo "DEPLOY_HOST_IP=\"$IP\"" ;;
+        DEPLOY_HOST_IP=*)           if [ -n "$IP" ]; then echo "DEPLOY_HOST_IP=\"$IP\""; else printf '%s\n' "$line"; fi ;;
         TARGET_NETWORKS=*)          echo "TARGET_NETWORKS=($NETS)" ;;
         NOTIFY_DEST_HASH=*)         echo "NOTIFY_DEST_HASH=\"$NOTIFY\"" ;;
         STATUS_DEST_HASH=*)         echo "STATUS_DEST_HASH=\"$STATUS\"" ;;

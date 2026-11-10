@@ -23,9 +23,8 @@ WEG A: git clone
    cd ~/deploy/navika
    git log -1 --oneline
 4. Weiter mit "Gemeinsam ab Bootstrap".
-   Hinweis: Der Konfigurationsassistent fragt eine gueltige IPv4-Adresse fuer den
-   Deploy-Host ab. Bei Weg A wird sie nicht gebraucht; trage die IP des
-   Entwicklungsrechners ein.
+   Hinweis: Die IP des Deploy-Hosts im Konfigurationsassistenten wird bei Weg A nicht
+   gebraucht; mit Enter bleibt sie leer.
 
 
 WEG B: rsync vom Deploy-Host
@@ -65,7 +64,7 @@ GEMEINSAM AB BOOTSTRAP
    cd ~/deploy/navika
    bash bootstrap/bootstrap_new_node.sh
    Als Erstes startet der Konfigurationsassistent, aber nur wenn /etc/navika.env
-   noch fehlt. Er fragt: Hostname, IP des Deploy-Hosts, Client-WLANs, Ziel-Hashes,
+   noch fehlt. Er fragt: Hostname, IP des Deploy-Hosts (optional), Client-WLANs, Ziel-Hashes,
    erlaubte Identities fuer rnsh, rncp und rnx, Samaya, NomadNet-Anzeigename und
    TCP-Server. Eine leere Eingabe heisst "nicht gesetzt"; ohne Freigabe startet
    der jeweilige Listener nicht. Danach laufen Updates und Paketinstallation
