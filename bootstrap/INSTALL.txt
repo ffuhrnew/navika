@@ -31,7 +31,7 @@ WEG B: rsync vom Deploy-Host
 ----------------------------
 1. Frischen Node booten (verbindet sich mit dem vorkonfigurierten Setup-WLAN),
    per SSH als pi anmelden.
-2. rsync pruefen. Das Pull-Skript braucht es, der Bootstrap installiert es nicht:
+2. rsync pruefen. Das Pull-Skript braucht es schon vor dem Bootstrap (der installiert es erst danach):
    command -v rsync || sudo apt install -y rsync
 3. Konfigurationsdatei /etc/navika.env mit den Angaben zum Deploy-Host anlegen
    (DEPLOY_HOST_IP ist Pflicht, DEPLOY_USER und DEPLOY_REPO_PATH sind optional,

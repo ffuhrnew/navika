@@ -4,6 +4,11 @@ set -e
 
 [ -f /etc/navika.env ] && source /etc/navika.env
 
+if ! command -v rsync >/dev/null 2>&1; then
+    echo "FEHLER: rsync ist nicht installiert. Installieren mit: sudo apt install -y rsync"
+    exit 1
+fi
+
 DEPLOY_HOST_IP="${DEPLOY_HOST_IP:-<DEPLOY_HOST_IP>}"
 DEPLOY_USER="${DEPLOY_USER:-pi}"
 DEPLOY_REPO_PATH="${DEPLOY_REPO_PATH:-~/build/navika}"

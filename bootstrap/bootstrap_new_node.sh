@@ -9,7 +9,7 @@ sudo apt-get -y autoremove
 
 echo "--- Basis-Pakete ---"
 sudo apt-get install -y fake-hwclock \
-    git curl nano jq wget \
+    git curl nano jq wget rsync \
     python3 python3-pip python3-venv python3-dev \
     build-essential gcc \
     libusb-1.0-0 libusb-1.0-0-dev libudev-dev \
