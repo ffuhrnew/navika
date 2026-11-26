@@ -129,11 +129,16 @@ sudo hostnamectl set-hostname "${NODE_NAME}"
 # cloud-init soll Hostname und /etc/hosts nicht mehr ueberschreiben
 printf 'preserve_hostname: true\nmanage_etc_hosts: false\n' | sudo tee /etc/cloud/cloud.cfg.d/99-navika-hostname.cfg >/dev/null
 
+if [ -e /dev/ttyRNODE ]; then
 echo "--- 9. NomadNet-Anzeigename ---"
 sudo -u pi -H /usr/local/bin/navika-set-nomadnet-name.sh || echo "WARNUNG: NomadNet-Anzeigename konnte nicht gesetzt werden."
 
 echo "--- 10. NomadNet-Node (optional) ---"
 sudo -u pi -H /usr/local/bin/navika-nomadnet-node.sh || echo "WARNUNG: NomadNet-Node konnte nicht eingerichtet werden."
+else
+    echo "HINWEIS: /dev/ttyRNODE fehlt (kein RNode angeschlossen) - NomadNet-Schritte 9 und 10 werden uebersprungen."
+    echo "Nachholen nach dem Anschliessen des RNode: navika-set-nomadnet-name.sh und navika-nomadnet-node.sh (siehe Doku)."
+fi
 
 echo "--- 11. Zeitsynchronisation per Samaya (optional) ---"
 if [ "${SAMAYA_ENABLE:-no}" != "yes" ]; then

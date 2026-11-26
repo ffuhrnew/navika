@@ -149,6 +149,11 @@ gesetzt, fragt das Skript Hash und Name interaktiv ab. In beiden Faellen schreib
 ~/.nomadnetwork/storage/pages/status_allowed; diese Datei liest status.mu. Eine spaetere Aenderung der
 Quelldatei wirkt erst nach erneutem Lauf des Skripts.
 
+Ohne RNode: Fehlt /dev/ttyRNODE (kein RNode angeschlossen), ueberspringt das Setup die
+Schritte fuer Anzeigename und NomadNet-Node mit einem Hinweis, weil die
+NomadNet-Initialisierung ohne RNode fehlschlaegt. Nachholen nach dem Anschliessen:
+navika-set-nomadnet-name.sh und navika-nomadnet-node.sh.
+
 ### nomadnet-templates/
 index.mu (Startseite, Platzhalter @NODE_NAME@, @OPERATOR_NAME@, @OPERATOR_LXMF@; ohne
 LXMF-Adresse entfaellt die Zeile) und status.mu (dynamische Seite, Python, muss
